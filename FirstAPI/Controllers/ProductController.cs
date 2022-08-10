@@ -1,4 +1,5 @@
 ﻿using FirstAPI.Data;
+using FirstAPI.Dtos.ProductDtos;
 using FirstAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,23 +30,51 @@ namespace FirstAPI.Controllers
         public IActionResult GetOne(int id)
         {
             Product p = _context.Products.Where(p => p.IsActive).FirstOrDefault(p => p.Id == id);
+            
             if (p == null) return NotFound();
 
-            return Ok(p);
+            ProductReturnDto productReturnDto = new ProductReturnDto();
+            productReturnDto.Name = p.Name;
+            productReturnDto.Price = p.Price;
+            productReturnDto.IsActive = p.IsActive;
+
+            
+
+            return Ok(productReturnDto);
         }
         #endregion
 
         #region Get All
+
         // ------- Get All Method --------
-
-
 
 
         [HttpGet]
         //[Route("all")]
         public IActionResult GetAll()
         {
-            return StatusCode(200, _context.Products.Where(p => p.IsActive).ToList());
+            var query = _context.Products.Where(p => !p.IsDeleted);
+
+            ProductListDto productListDto = new ProductListDto();
+
+            //foreach (var item in products)
+            //{
+            //    ProductReturnDto productReturnDto = new ProductReturnDto();
+            //    productReturnDto.Name = item.Name;
+            //    productReturnDto.Price = item.Price;
+            //    productReturnDto.IsActive = item.IsActive;
+            //    productListDto.Items.Add(productReturnDto);
+            //}
+
+            productListDto.Items = query.Select(p=>new ProductReturnDto
+            {
+                Name = p.Name,
+                Price = p.Price,
+                IsActive = p.IsActive,
+            }).Skip(1).Take(1).ToList();
+                
+            productListDto.TotalCount = query.Count();
+            return StatusCode(200,productListDto);
         }
         #endregion
 
@@ -55,9 +84,16 @@ namespace FirstAPI.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(Product product)
+        public IActionResult Create(ProductCreateDto productCreateDto)
         {
-            _context.Products.Add(product);
+            Product newProduct = new Product
+            {
+                Name = productCreateDto.Name,
+                Price = productCreateDto.Price,
+                IsActive = productCreateDto.IsActive
+            };
+
+            _context.Products.Add(newProduct);
             _context.SaveChanges();
             return StatusCode(201);
         }
@@ -69,14 +105,14 @@ namespace FirstAPI.Controllers
 
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id,Product product)
+        public IActionResult Update(int id, ProductUpdateDto productUpdateDto)
         {
             Product p = _context.Products.FirstOrDefault(p => p.Id == id);
             if (p == null) return NotFound();
 
-            p.Name = product.Name;
-            p.Price = product.Price;
-            p.IsActive = product.IsActive;
+            p.Name = productUpdateDto.Name;
+            p.Price = productUpdateDto.Price;
+            p.IsActive = productUpdateDto.IsActive;
             _context.SaveChanges();
 
             return StatusCode(200, p.Id);

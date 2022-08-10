@@ -1,4 +1,5 @@
-﻿using FirstAPI.Models;
+﻿using FirstAPI.Configuration;
+using FirstAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FirstAPI.Data
@@ -11,5 +12,10 @@ namespace FirstAPI.Data
         }
 
         public DbSet<Product> Products { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+        }
     }
 }

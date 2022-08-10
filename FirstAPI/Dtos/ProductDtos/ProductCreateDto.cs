@@ -1,6 +1,6 @@
-﻿namespace FirstAPI.Models
+﻿namespace FirstAPI.Dtos.ProductDtos
 {
-    public class Product:BaseEntity
+    public class ProductCreateDto
     {
         public string Name { get; set; }
         public decimal Price { get; set; }
