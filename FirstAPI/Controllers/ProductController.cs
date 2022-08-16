@@ -25,8 +25,7 @@ namespace FirstAPI.Controllers
         // ------- Read Method --------
 
 
-        [HttpGet]
-        [Route("{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetOne(int id)
         {
             Product p = _context.Products.Where(p => p.IsActive).FirstOrDefault(p => p.Id == id);
